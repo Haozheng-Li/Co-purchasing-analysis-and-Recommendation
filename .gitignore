@@ -134,3 +134,4 @@ dmypy.json
 
 # project ignore
 .define.py
+/define.py
