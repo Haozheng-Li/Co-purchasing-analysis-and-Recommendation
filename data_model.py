@@ -1,10 +1,45 @@
 import pymysql
 import re
-import define
+import os
+import time
+import requests
 from tqdm import tqdm
 
-DATA_PATH = 'Data/amazon-meta.txt'
+if os.path.exists('./define.py'):
+    from define import *
+
+DATA_PATH = 'amazon-meta.txt'
+DATA_URL = 'http://snap.stanford.edu/data/bigdata/amazon/amazon-meta.txt.gz'
 g_Model = None
+
+
+def detect_data_file():
+    """
+    Could be very slow, suggest downloading from URL by browser, and then put the datafile into project root dir
+    """
+    if os.path.exists(DATA_PATH):
+        return
+    start_time = time.time()
+    response = requests.get(DATA_URL, stream=True)
+    chunk_size = 1024
+    content_size = int(response.headers.get('content-length', 0))
+    if response.status_code == 200:
+        print('Start downloading, [File size]:{size:.2f} MB'.format(size=content_size / chunk_size / 1024))
+        progress_bar = tqdm(total=content_size, unit='kB',
+                            unit_scale=True, colour='green',)
+        with open('data.txt.gz', 'wb') as file:
+            for data in response.iter_content(chunk_size):
+                progress_bar.update(len(data))
+                file.write(data)
+        progress_bar.close()
+        if content_size != 0 and progress_bar.n != content_size:
+            print("Download failed")
+        else:
+            end_time = time.time()
+            print('Download completed! time: {.2f}'.format(end_time - start_time))
+            with gzip.open('data.txt.gz', 'rb') as zip_data:
+                with open('amazon-meta.txt', 'wb') as saida:
+                    shutil.copyfileobj(zip_data, saida)
 
 
 def parse_data():
@@ -135,10 +170,10 @@ class Model:
         env: mysql 8.0, should input the mysql host, username, and password
         :return:
         """
-        self.m_db = pymysql.connect(host=define.MYSQL_HOST,
-                                    user=define.MYSQL_USERNAME,
-                                    password=define.MYSQL_PASSWORD,
-                                    database=define.MYSQL_DATABASE)
+        self.m_db = pymysql.connect(host=MYSQL_HOST,
+                                    user=MYSQL_USERNAME,
+                                    password=MYSQL_PASSWORD,
+                                    database=MYSQL_DATABASE)
         self.m_cursor = self.m_db.cursor()
 
     def execute_sql(self, sql):
@@ -265,5 +300,5 @@ class Model:
 
 
 if __name__ == '__main__':
-    model = get_model()
-    model.store_all_data()
+    detect_data_file()
+    # model = get_model()
