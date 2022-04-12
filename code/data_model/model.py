@@ -10,7 +10,7 @@ from tqdm import tqdm
 if os.path.exists('define.py'):
     from define import *
 
-DATA_PATH = '../data/amazon-meta.txt'
+DATA_PATH = '../../data/amazon-meta.txt'
 DATA_URL = 'http://snap.stanford.edu/data/bigdata/amazon/amazon-meta.txt.gz'
 g_Model = None
 
@@ -40,7 +40,7 @@ def detect_data_file():
             end_time = time.time()
             print('Download completed! time: {.2f}'.format(end_time - start_time))
             with gzip.open('data.txt.gz', 'rb') as zip_data:
-                with open('../data/amazon-meta.txt', 'wb') as saida:
+                with open('../../data/amazon-meta.txt', 'wb') as saida:
                     shutil.copyfileobj(zip_data, saida)
 
 
@@ -307,20 +307,23 @@ class Model:
         """ % (attribute_name, attribute_value)
         return self.execute_sql(sql)
 
-    def get_all_product(self):
+    def get_all_product(self, limit=1000):
         """
         :return: all products info
         """
-        sql = """
-        select * from products;
-        """
+        sql = """ select * from products limit %s; """ % limit
         return self.execute_sql(sql)
 
+    def get_all_reviews(self, limit=1000):
+        """
+        :return: all reviews info
+        """
+        sql = """ select * from reviews limit %s; """ % limit
+        return self.execute_sql(sql)
+# END
 
 if __name__ == '__main__':
-    detect_data_file()
     model = get_model()
-    print(model.get_product_by_attribute('id', 'B00YZQZJQO'))
     print(model.get_all_product())
     model.close_connection()
 
