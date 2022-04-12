@@ -3,12 +3,14 @@ import re
 import os
 import time
 import requests
+import shutil
+import gzip
 from tqdm import tqdm
 
-if os.path.exists('./define.py'):
+if os.path.exists('define.py'):
     from define import *
 
-DATA_PATH = 'amazon-meta.txt'
+DATA_PATH = '../data/amazon-meta.txt'
 DATA_URL = 'http://snap.stanford.edu/data/bigdata/amazon/amazon-meta.txt.gz'
 g_Model = None
 
@@ -38,7 +40,7 @@ def detect_data_file():
             end_time = time.time()
             print('Download completed! time: {.2f}'.format(end_time - start_time))
             with gzip.open('data.txt.gz', 'rb') as zip_data:
-                with open('amazon-meta.txt', 'wb') as saida:
+                with open('../data/amazon-meta.txt', 'wb') as saida:
                     shutil.copyfileobj(zip_data, saida)
 
 
@@ -176,6 +178,10 @@ class Model:
                                     database=MYSQL_DATABASE)
         self.m_cursor = self.m_db.cursor()
 
+    def close_connection(self):
+        self.m_cursor.close()
+        self.m_db.close()
+
     def execute_sql(self, sql):
         """
         Just for single, easy sql
@@ -223,14 +229,14 @@ class Model:
         self.m_cursor.executemany(sql, datalist)
         self.m_db.commit()
 
-    def query_all_tables(self):
+    def get_tables_info(self):
         sql = """
         select table_name  from information_schema.tables
         where table_schema='csds435project';"""
         return self.execute_sql(sql)
 
     def init_tables(self):
-        if len(self.query_all_tables()) == 4:
+        if len(self.get_tables_info()) == 4:
             return
         """
         Once the table has been created, it cannot be repeatedly executed to modify the structure of the table.
@@ -295,10 +301,26 @@ class Model:
         self.insert_by_list('reviews', review_total)
         self.insert_by_list('categories', categories_total)
 
-        self.m_cursor.close()
-        self.m_db.close()
+    def get_product_by_attribute(self, attribute_name, attribute_value):
+        sql = """
+        select * from products where %s = '%s';
+        """ % (attribute_name, attribute_value)
+        return self.execute_sql(sql)
+
+    def get_all_product(self):
+        """
+        :return: all products info
+        """
+        sql = """
+        select * from products;
+        """
+        return self.execute_sql(sql)
 
 
 if __name__ == '__main__':
     detect_data_file()
-    # model = get_model()
+    model = get_model()
+    print(model.get_product_by_attribute('id', 'B00YZQZJQO'))
+    print(model.get_all_product())
+    model.close_connection()
+
