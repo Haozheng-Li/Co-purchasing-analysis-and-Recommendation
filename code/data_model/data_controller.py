@@ -275,7 +275,7 @@ class Model:
 
         """
         Referring to Ali's database specification, I did not choose foreign key constraints here.
-        Because foreign key constraints are too troublesome to delete data and change data. 
+        Foreign key constraints are too troublesome to delete data and change data. 
         Foreign key constraints will be resolved at the application layer.
         """
         sql_create_reviews = """
@@ -320,7 +320,7 @@ class Model:
         """
         sql = """ select * from reviews limit %s; """ % limit
         return self.execute_sql(sql)
-# END
+
 
 if __name__ == '__main__':
     model = get_model()
