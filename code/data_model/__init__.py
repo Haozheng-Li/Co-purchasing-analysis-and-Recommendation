@@ -1,12 +1,10 @@
-import localize
+import code.data_model.localize as localize
 
 
-def get_data(data_type):
-    """
-    data_type:['categories','products', 'reviews']
-    """
-    return localize.read_local_data(data_type)
-
-
-if __name__ == '__main__':
-    print(get_data('products'))
+def get_data_by_type(data_type='products', is_local=True):
+	"""
+	@param data_type: str [products, categories, reviews]
+	@param is_local: bool
+	"""
+	if is_local:
+		return localize.read_local_data(data_type)

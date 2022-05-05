@@ -49,10 +49,8 @@ def parse_data(limit=None):
         'title': '',
         'product_group': '',
         'salesrank': 0,
-        'similar_num': 0,
         'similar_items': '',
         'categories_items': '',
-        'categories_num': 0,
         'reviews_total': 0,
         'reviews_downloaded': 0,
         'reviews_avg': 0,
@@ -79,8 +77,6 @@ def parse_data(limit=None):
             product_data['available'] = 1
         elif line == 'discontinued product':
             product_data['available'] = 0
-        elif line.startswith('categories'):
-            product_data['categories_num'] = int(line.split()[1])
         elif line.startswith('|'):
             # for product data
             categories_id_info = re.findall(r'[1-9]+\.?[0-9]*', line)
@@ -136,7 +132,6 @@ def parse_data(limit=None):
                 'title': '',
                 'product_group': '',
                 'salesrank': 0,
-                'similar_num': 0,
                 'similar_items': '',
                 'categories_items': '',
                 'categories_num': 0,
@@ -156,7 +151,6 @@ def parse_data(limit=None):
             if each_item not in all_asin:
                 new_similar_items += each_item + '|'
         each_product['similar_items'] = new_similar_items
-        each_product['similar_num'] = len(new_similar_items.split('|'))
     return product_total, categories_total, review_total
 
 

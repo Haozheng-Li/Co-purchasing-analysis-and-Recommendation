@@ -1,6 +1,7 @@
-import preprocessing
+import code.data_model.preprocessing as preprocessing
 import pandas as pd
 import csv
+import os
 
 
 def localize_list_data(data, file_name):
@@ -23,15 +24,15 @@ def read_local_data(file_name):
     """
     Read data from local file
     """
-    print('Reading data...')
-    data = pd.read_csv("../../data/{}.csv".format(file_name), encoding='utf-8')
+    data = pd.read_csv(os.getcwd()+"/../../data/{}.csv".format(file_name), encoding='utf-8')
     return data
 
 
 if __name__ == '__main__':
-    products, categories, reviews = preprocessing.parse_data(1000000)
+    products, categories, reviews = preprocessing.parse_data(100000)
     localize_list_data(products, 'products')
     localize_list_data(categories, 'categories')
     localize_list_data(reviews, 'reviews')
+    print(read_local_data('products'))
 
 
